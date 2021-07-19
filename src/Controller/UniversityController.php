@@ -19,7 +19,10 @@ class UniversityController extends AbstractController
         return $this->json([
             'message' => 'Welcome to my API!',
             'path' => 'src/Controller/UniversityController.php',
-            'commands' => []
+            'routes' => [
+                'buildTree' => 'Returns you branch of the tree',
+                'data' => 'Returns you all existing fields'
+                ]
         ]);
     }
 
@@ -27,10 +30,28 @@ class UniversityController extends AbstractController
      * @Route("/data", name="data")
      * @return Response
      */
-    private function getData(): Response
+    public function getData(): Response
     {
         $data = $this->getDoctrine()->getRepository(University::class)->findAll();
 
-        return new JsonResponse(json_encode($data, JSON_UNESCAPED_UNICODE), Response::HTTP_OK);
+        return new JsonResponse($data, Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/university/buildTree", name="buildTree")
+     * @return Response
+     */
+    public function buildTree($start_id = 1): Response
+    {
+        $data = $this->getData()->getContent();
+        $data = json_decode($data,true);
+
+        $data = array_combine(range(1, count($data)), array_values($data));
+
+        foreach ($data as $key => $value) {
+            $data[$value['parent_id']]['sub_divisions'][] = &$data[$key];
+        }
+
+        return new JsonResponse($data[$start_id], Response::HTTP_OK);
     }
 }
