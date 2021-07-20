@@ -29,7 +29,7 @@ class UniversityController extends AbstractController
     }
 
     /**
-     * @Route("/data", name="data")
+     * @Route("/university/data", name="data")
      * @return JsonResponse
      */
     public function getData(): JsonResponse
